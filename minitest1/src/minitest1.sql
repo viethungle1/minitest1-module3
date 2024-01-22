@@ -1,11 +1,10 @@
 create database minitest1;
-use minitest1;
 -- Bảng Classes (id, name, language, description)
 create table class(
-id int primary key auto_increment,
-name varchar(50),
-language varchar(50),
-description varchar(250));
+                      id int primary key auto_increment,
+                      name varchar(50),
+                      language varchar(50),
+                      description varchar(250));
 insert into class(id,name,language,description) values(1,"C1","Java","1");
 insert into class(name,language,description) values("C2","Python","2");
 insert into class(name,language,description) values("C3","NodeJS","3");
@@ -15,12 +14,12 @@ select * from class;
 drop table class;
 -- Bảng Students (id, fullname, address_id, age, phone (unique), classes_id)
 create table student(
-id int primary key auto_increment,
-fullname varchar(50),
-address_id int,
-age int,
-phone varchar(10) unique,
-class_id int);
+                        id int primary key auto_increment,
+                        fullname varchar(50),
+                        address_id int,
+                        age int,
+                        phone varchar(10) unique,
+                        class_id int);
 alter table student add constraint classID foreign key(class_id) references class(id);
 insert into student(id,fullname,address_id,age,phone,class_id) values (1,"phan quyet thang",2,25,"0123456789",1);
 insert into student(fullname,address_id,age,phone,class_id) values ("duong minh hieu",3,16,"0123456788",1);
@@ -35,9 +34,9 @@ insert into student(fullname,address_id,age,phone,class_id) values ("vu anh duy"
 select * from student;
 -- Bảng Course (id, name, description)
 create table course(
-id int auto_increment primary key,
-name varchar(50),
-description varchar(250));
+                       id int auto_increment primary key,
+                       name varchar(50),
+                       description varchar(250));
 insert into course values(1, "@1","Full-stack");
 insert into course(name, description) values("@2","Full-stack");
 insert into course(name, description) values("@3","Full-stack");
@@ -46,10 +45,10 @@ insert into course(name, description) values("@5","Full-stack");
 select * from course;
 -- Bảng Point(id, course_id, student_id, point)
 create table point(
-id int auto_increment primary key,
-course_id int,
-student_id int,
-point int);
+                      id int auto_increment primary key,
+                      course_id int,
+                      student_id int,
+                      point int);
 alter table point add constraint courseID foreign key(course_id) references course(id);
 alter table point add constraint studentID foreign key(student_id) references student(id);
 insert into point values(1,1,5,10);
@@ -70,8 +69,8 @@ insert into point (course_id,student_id, point) values(3,6,10);
 select * from point;
 -- Bảng Address (id, address)
 create table address(
-id int primary key auto_increment,
-address varchar(200));
+                        id int primary key auto_increment,
+                        address varchar(200));
 insert into address value (1,"Ha Noi");
 insert into address(address) value ("Thai Nguyen");
 insert into address(address) value ("Hai Duong");
@@ -79,12 +78,19 @@ insert into address(address) value ("Nam Dinh");
 insert into address(address) value ("Hung Yen");
 
 -- -------------BÀI LÀM-------------
+use minitest1;
 select * from student where fullname like "nguyen%";
 select * from student where fullname like "%anh";
-select * from student where age>15 and age<18;
+select * from student where between 15 and 18;
 select * from student where id=2 or id =3;
-select a.address as que_quan,count(a.address) as so_luong from (student s join address a on s.address_id = a.id) group by que_quan;
-select c.name as ten_lop,count(s.fullname) as so_luong from (student s join class c on s.address_id = c.id) group by ten_lop;
-select student.id, student.fullname, avg(point.point) as diem_trung_binh from ((point join student on point.student_id = student.id) join course on point.course_id=course.id) group by student.fullname;
+select a.address as que_quan,count(a.address) as so_luong from (student s left join address a on s.address_id = a.id) group by que_quan;
+select c.name as ten_lop,count(s.fullname) as so_luong from (student s right join class c on s.address_id = c.id) group by ten_lop;
+select student.id, student.fullname, avg(point.point) as diem_trung_binh from ((point join student on point.student_id = student.id) join course on point.course_id=course.id) group by student.fullname order by diem_trung_binh desc;
 
 
+select table1.ten_lop, table1.diem_trung_binh
+from (select course.name as ten_lop, avg(point.point) as diem_trung_binh from course left join point on point.course_id = course.id group by ten_lop)
+         as table1
+where (table1.diem_trung_binh = (select max(table2.diem_trung_binh) from
+    (select course.name as ten_lop, avg(point.point) as diem_trung_binh from course left join point on point.course_id = course.id group by ten_lop)
+        as table2));
